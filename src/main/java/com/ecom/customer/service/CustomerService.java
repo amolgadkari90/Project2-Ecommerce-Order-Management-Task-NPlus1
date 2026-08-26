@@ -1,6 +1,9 @@
 package com.ecom.customer.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,6 +12,7 @@ import com.ecom.customer.dto.CustomerResponse;
 import com.ecom.customer.entity.Customer;
 import com.ecom.customer.repository.CustomerRepository;
 import com.ecom.globalexceptionhandler.customexceptions.CustomerAlreadyExistsException;
+import com.ecom.globalexceptionhandler.customexceptions.CustomerNotFoundException;
 import com.ecom.utility.ErrorMessage;
 
 @Service
@@ -21,12 +25,12 @@ public class CustomerService {
 		this.custRepo = _custRepo;
 	}
 	
-	/*
-	 * Create customer
+	/*Create customer
 	 * Get all customers
 	 * Get customer by ID
-	 * 
 	 * */
+	
+	//Create customer
 	
 	@Transactional
 	public CustomerResponse saveCustomer(CustomerRequest custRequest ){
@@ -48,16 +52,48 @@ public class CustomerService {
 		Customer savedCustomer = custRepo.save(customer);
 				
 		//Map Entity -> Response
-		CustomerResponse response =  custEntityToRequest(savedCustomer);
+		CustomerResponse response =  custEntityToResponse(savedCustomer);
 		
 		//return response
 		return response;	
 		
 	}
 	
+	//Get customer by ID
+	
+	@Transactional
+	public CustomerResponse getCustomerById(Long customerId){
+		
+		Customer customer = custRepo.findById(customerId)
+	            .orElseThrow(() ->
+	                new CustomerNotFoundException(
+	                    ErrorMessage.CUSTOMER_NOT_FOUND.toString()
+	                )
+	            );
+		
+		//Map Entity -> Response
+		CustomerResponse response =  custEntityToResponse(customer);
+		
+		return response;
+	}
+	
+	//Get all customers
+	public List<CustomerResponse> getAllCustomers(){
+		
+		Iterable<Customer> allCustomers = custRepo.findAll();
+		List<CustomerResponse> customerList = new ArrayList<CustomerResponse>();
+		for(Customer customer: allCustomers) {
+			CustomerResponse response = custEntityToResponse(customer);
+			customerList.add(response);			
+		}		
+		
+		return customerList;		
+	}
+	
+	
 	/*Utility methods*/
 	
-	private CustomerResponse custEntityToRequest(Customer savedCustomer) {
+	private CustomerResponse custEntityToResponse(Customer savedCustomer) {
 		// TODO Auto-generated method stub
 		CustomerResponse response = new CustomerResponse();
 		
