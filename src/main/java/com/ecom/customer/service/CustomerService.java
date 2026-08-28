@@ -63,15 +63,10 @@ public class CustomerService {
 	
 	@Transactional
 	public CustomerResponse getCustomerById(Long customerId){
-		
-		Customer customer = custRepo.findById(customerId)
-	            .orElseThrow(() ->
-	                new CustomerNotFoundException(
-	                    ErrorMessage.CUSTOMER_NOT_FOUND.toString()
-	                )
-	            );
-		
-		//Map Entity -> Response
+		//Find customer
+		Customer customer = findCustomerById(customerId);
+	              
+	   //Map Entity -> Response
 		CustomerResponse response =  custEntityToResponse(customer);
 		
 		return response;
@@ -92,6 +87,19 @@ public class CustomerService {
 	
 	
 	/*Utility methods*/
+	
+	public Customer findCustomerById(Long customerId){
+		
+		//if customer not found throw exception
+		Customer customer = custRepo.findById(customerId)
+	            .orElseThrow(() ->
+	                new CustomerNotFoundException(
+	                    ErrorMessage.CUSTOMER_NOT_FOUND.toString()
+	                )
+	            );
+		return customer;
+		
+	}
 	
 	private CustomerResponse custEntityToResponse(Customer savedCustomer) {
 		// TODO Auto-generated method stub
@@ -121,5 +129,8 @@ public class CustomerService {
 	private boolean ifCustomerExist(String email){
 		return custRepo.existsByEmail(email);			
 	}
+	
+	
+	
 
 }

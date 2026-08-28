@@ -6,15 +6,19 @@ import java.time.LocalDate;
 import org.springframework.data.annotation.CreatedDate;
 
 import com.ecom.audit.Audit;
+import com.ecom.customer.entity.Customer;
 import com.ecom.utility.OrderStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -38,6 +42,15 @@ public class Order extends Audit{
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
 	private OrderStatus status;
+	
+	// Order
+	@ManyToOne(fetch = FetchType.LAZY) // Each order has one customer fetch -> Lazy so when
+										// asked then only fetch customer object
+	@JoinColumn(name = "customer_id") 
+	// customer_id -> same field name in DB 
+	//and this must be PrimaryKey in Customer Table
+	//Use the customer_id column in the orders table to store the relationship to Customer.
+	private Customer customer;
 	
 	public Long getId() {
 		return id;
@@ -69,4 +82,10 @@ public class Order extends Audit{
 	public void setStatus(OrderStatus status) {
 		this.status = status;
 	}
+	public Customer getCustomer() {
+		return customer;
+	}
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
+	}		
 }
